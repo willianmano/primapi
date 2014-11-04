@@ -1,0 +1,27 @@
+{
+    "name": "willianmano/rmmapi",
+    "description": "API com exemplo de uso do modelo de maturidade de richardson",
+    "keywords": [
+        "respect",
+        "rest",
+        "charon",
+        "rmm"
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "respect/rest": "dev-master",
+        "evaldobarbosa/charon": "0.5.0.*@dev",
+        "robmorgan/phinx": "*"
+    },
+    "autoload": {
+        "classmap": [
+            "app/Entities"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Willian Mano",
+            "email": "willianmanoaraujo@gmail.com"
+        }
+    ]
+}
