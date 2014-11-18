@@ -9,7 +9,18 @@ class Prima extends Entity {
     protected $site;
     protected $cidade;
     protected $estado;
-    
+
+    // function getNome() {
+    //     return $this->nome;
+    // }
+
+    // function getSite() {
+    //     return $this->nome;
+    // }
+    public function getArrayCopy() 
+    {
+        return get_object_vars($this);
+    }
     function validate() {
         return true;
     }

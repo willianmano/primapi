@@ -37,10 +37,20 @@ $app->get("/v1/prima/*", function($id) use ($dbcon) {
     return $prima;
 });
 
-// $jsonRender = function ($data) {
-//     header('Content-Type: application/json');
-    
-//     return json_encode($data,true);
-// };
+$jsonRender = function ($data) {
+    header('Content-Type: application/json');
 
-// $app->always('Accept', array('application/json' => $jsonRender));
+    if($data instanceof Charon\Entity) {
+        return json_encode($data->getArrayCopy(), true);
+    }
+
+    foreach ($data as $key => $value) {
+        if($value instanceof Charon\Entity) {
+            $data[$key] = $value->getArrayCopy();
+        }
+    }
+    
+    return json_encode($data,true);
+};
+
+$app->always('Accept', array('application/json' => $jsonRender));
