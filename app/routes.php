@@ -1,7 +1,8 @@
 <?php
 
-use Respect\Rest\Router;
-use Charon\Loader as dl;
+use Respect\Rest\Router,
+    Charon\Loader as dl,
+    Nocarrier\Hal;
 
 $dbcon = new PDO(
     "mysql:host=localhost;port=3306;dbname=rmmapi",
@@ -13,7 +14,7 @@ $dbcon = new PDO(
 $app = new Router;
 
 $app->get("/", function() use ($dbcon) {
-    return "ola rmm";
+    return array('message' => 'Hello PrimAPI');
 });
 
 $app->get("/v1/primas", function() use ($dbcon) {
@@ -26,7 +27,7 @@ $app->get("/v1/primas", function() use ($dbcon) {
     return $primas;
 });
 
-$app->get("/v1/prima/*", function($id) use ($dbcon) {
+$app->get("/v1/primas/*", function($id) use ($dbcon) {
     $dl = new dl($dbcon);
         
     $dl->load('App\Entities\Prima')
@@ -34,23 +35,49 @@ $app->get("/v1/prima/*", function($id) use ($dbcon) {
     
     $prima = $dl->get();
 
-    return $prima;
+    $hal = new Hal('/v1/primas/' . $prima->id, $prima->getArrayCopy());
+    $hal->addLink('interview', '/v1/primas/' . $prima->id . '/interview');
+    
+    return $hal;
+});
+
+$app->get("/v1/primas/*/interview", function($id) use ($dbcon) {
+    $dl = new dl($dbcon);
+        
+    $dl->load('App\Entities\Prima')
+       ->equal("prima->id",(int)$id);   
+    
+    $prima = $dl->get();
+
+    $hal = new Hal('/v1/primas/' . $prima->id . '/interview');
+    
+    return $hal;
 });
 
 $jsonRender = function ($data) {
-    header('Content-Type: application/json');
+    header('Content-Type: application/hal+json');
 
-    if($data instanceof Charon\Entity) {
-        return json_encode($data->getArrayCopy(), true);
+    if(!$data instanceof Nocarrier\Hal) {
+        return json_encode($data, true);
     }
 
-    foreach ($data as $key => $value) {
-        if($value instanceof Charon\Entity) {
-            $data[$key] = $value->getArrayCopy();
-        }
-    }
-    
-    return json_encode($data,true);
+    return $data->asJson();
 };
 
-$app->always('Accept', array('application/json' => $jsonRender));
+$xmlRender = function ($data) {
+    header('Content-Type: application/hal+xml');
+
+    if(!$data instanceof Nocarrier\Hal) {
+        $xml = new SimpleXMLElement('<xml/>');
+
+        foreach ($data as $key => $value) {
+            $xml->addChild($key, $value);
+        }
+
+        return $xml->asXML();
+    }
+
+    return $data->asXml();
+};
+
+$app->always('Accept', array('application/hal+json' => $jsonRender, 'application/hal+xml' => $xmlRender));

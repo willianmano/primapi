@@ -10,7 +10,8 @@
     "require": {
         "php": ">=5.3.3",
         "respect/rest": "dev-master",
-        "evaldobarbosa/charon": "0.5.0.*@dev"
+        "evaldobarbosa/charon": "0.5.0.*@dev",
+        "nocarrier/hal": "~0.9"
     },
     "autoload": {
         "classmap": [
